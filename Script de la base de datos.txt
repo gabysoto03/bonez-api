@@ -1,0 +1,374 @@
+/*TABLA DE PRODUCTOS */
+
+CREATE TABLE productos (
+    	id INT PRIMARY KEY,
+    	nombre VARCHAR(150) NOT NULL,
+    	descripcion TEXT,
+    	categoria VARCHAR(50) NOT NULL, 
+	tipo VARCHAR(50) NOT NULL, 
+    	precio DECIMAL(10,2) NOT NULL,
+	imagen BYTEA,
+	createAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updateAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+/* POBLAR LA TABLA DE PRODUCTOS DE LA BASE DE DATOS */
+
+INSERT INTO productos (id, nombre, descripcion, categoria, tipo, precio, imagen)
+VALUES
+('Bota1', 'Bota ocupacional', 'Descripcion de la bota ocupacional', 'Ocupacional', 'Calzado', 899.99, NULL),
+('Bota2', 'Bota puntera de protección', 'Descripcion de la bota puntera de protección', 'Puntera de protección', 'Calzado', 899.99, NULL),
+('Bota3', 'Bota dieléctrico', 'Descripcion de la bota dieléctrico', 'Dieléctrico', 'Calzado', 899.99, NULL),
+('Bota4', 'Bota metatarsal', 'Descripcion de la bota metatarsal', 'Metatarsal', 'Calzado', 899.99, NULL),
+('Equipo1', 'Nombre Chaleco', 'Chaleco de equipo de protección', 'Chalecos', 'Equipo', 1299.50, NULL),
+('Equipo2', 'Nombre Guantes', 'Guantes de equipo de protección', 'Guantes', 'Equipo', 1299.50, NULL),
+('Equipo3', 'Nombre Lentes', 'Lentes de equipo de protección', 'Lentes', 'Equipo', 1299.50, NULL),
+('Equipo4', 'Nombre Arnes', 'Arnes de equipo de protección', 'Arnes', 'Equipo', 1299.50, NULL),
+('Equipo5', 'Nombre Tapones', 'Tapones de equipo de protección', 'Tapones', 'Equipo', 1299.50, NULL),
+('Equipo6', 'Nombre Mascarillas', 'Mascarillas de equipo de protección', 'Mascarillas', 'Equipo', 1299.50, NULL),
+('Equipo7', 'Nombre Cascos', 'Cascos de equipo de protección', 'Cascos', 'Equipo', 1299.50, NULL);
+
+
+
+
+
+
+
+
+
+/* CREACIÓN DE LA TABLA DE CLIENTES */
+CREATE TABLE clientes (
+    id VARCHAR(10) PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre VARCHAR(150) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    telefono VARCHAR(20),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+/*LLenar la tabla de clientes */
+INSERT INTO clientes (id, nombre, email, password, telefono)
+VALUES
+('123', 'Juan Pérez', 'juan@gmail.com', '123456', '4421234567'),
+('456', 'Luis Martínez', 'luis@gmail.com', 'abcdef', '4427654321'),
+('789', 'Ana López', 'ana@gmail.com', 'pass123', '5512345678'),
+('000', 'Carlos Pérez', 'carlos@gmail.com', 'qwerty', '5587654321'),
+('111', 'María Torres', 'maria@gmail.com', 'hola123', '4491234567');
+
+
+
+
+/* CREACIÓN DE LA TABLA DE ALIADOS */
+CREATE TABLE aliados (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre TEXT NOT NULL,
+    img BYTEA,
+    createdAt TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+/*LLENADO DE LA TABLA DE ALIADOS*/
+INSERT INTO aliados (nombre, img)
+VALUES
+('AliadoUno', NULL),
+('AliadoDos', NULL);
+
+
+/*  CREACIÓN DE LA TABLA DE LA COMPRA DE CLIENTE */
+CREATE TABLE comprasCliente (
+    id VARCHAR(15) PRIMARY KEY,
+    fecha DATE NOT NULL,
+    total DOUBLE PRECISION NOT NULL,
+    status TEXT NOT NULL,
+    id_cliente VARCHAR(15) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_cliente
+    FOREIGN KEY (id_cliente)
+    REFERENCES clientes(id)
+);
+
+
+/*INSERTAR REGISTROS EN LA TABLA DE COMPRA DE CLIENTE */
+INSERT INTO comprasCliente (id, fecha, total, status, id_cliente)
+VALUES
+('0001', '2026-03-24', 1200.50, 'Pagado', '123'),
+('0002', '2026-03-24', 850.00, 'Pendiente de pago', 'asd');
+
+
+
+/* CREACIÓN DE LA TABLA DE DETALLE DE COMPRA DE LOS CLIENTES */
+CREATE TABLE detalleCliente (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    cantidad INT NOT NULL, 
+    id_compra VARCHAR(15) NOT NULL,
+    id_producto VARCHAR(15) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_compra
+    FOREIGN KEY (id_compra)
+    REFERENCES comprasCliente(id),
+
+    CONSTRAINT fk_producto
+    FOREIGN KEY (id_producto)
+    REFERENCES productos(id)
+);
+
+
+
+/* LLENADO DE LA TABLA DE DETALLE DE COMPRA */
+INSERT INTO detalleCliente (id_compra, id_producto, cantidad)
+VALUES
+('0001', 'Equipo1', 2),
+('0001', 'Equipo2', 3),
+('0001', 'Equipo3', 1),
+('0001', 'Equipo4', 1),
+('0001', 'tapones', 1),
+('0002', 'Bota1', 1),
+('0002', 'bota5', 1),
+('0002', 'Bota3', 1);
+
+
+
+
+
+
+/* CREACIÓN DE LA TABLA DE USUARIOS */
+CREATE TABLE usuarios (
+    id VARCHAR(10) PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre VARCHAR(150) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    telefono VARCHAR(20),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+/*LLenar la tabla de usuarios */
+INSERT INTO usuarios (id, nombre, email, password, telefono)
+VALUES
+('user1', 'Gabriela Soto Zepeda', 'gabrielasoto@gmail.com', 'admin', 'admin'),
+('user2', 'Juan Flavio Bocanegra Jímenez', 'flaviobocanegra@gmail.com', 'admin', 'admin'),
+
+
+
+
+
+
+/*Crear la tabla de las compras a los proveedores */
+CREATE TABLE comprasProveedores (
+    id VARCHAR(15) PRIMARY KEY,
+    fecha DATE NOT NULL,
+    total DOUBLE PRECISION NOT NULL,
+    status TEXT NOT NULL,
+    id_aliado UUID NOT NULL,
+    id_usuario VARCHAR(10) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_aliado
+    FOREIGN KEY (id_aliado)
+    REFERENCES aliados(id),
+
+    CONSTRAINT fk_usuario
+    FOREIGN KEY (id_usuario)
+    REFERENCES usuarios(id)
+);
+
+
+
+/* LLenar la tabla  */
+INSERT INTO comprasProveedores (id, fecha, total, status, id_aliado, id_usuario)
+VALUES
+('P0001', '2026-03-24', 1200.50, 'Pagado', '1d06789e-49b1-4324-ae18-bdabd566e429', 'user1'),
+('P0002', '2026-03-25', 850.00, 'Pendiente de pago', 'd9a5aab6-ba9a-423b-90f5-b8f6fabde820', 'user2');
+
+
+
+
+
+
+/*Creación de la tabla de detalle de las compras de los proveedores*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*TABLA DE PRODUCTOS */
+CREATE TABLE productos (
+	id INT PRIMARY KEY,
+	nombre VARCHAR(150) NOT NULL,
+	descripcion TEXT,
+	categoria VARCHAR(50) NOT NULL, 
+	tipo VARCHAR(50) NOT NULL, 
+	precio DECIMAL(10,2) NOT NULL,
+	imagen BYTEA,
+	createAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updateAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+/* CREACIÓN DE LA TABLA DE USUARIOS */
+CREATE TABLE usuarios (
+    id VARCHAR(10) PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre VARCHAR(150) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    telefono VARCHAR(20),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+/* CREACIÓN DE LA TABLA DE CLIENTES */
+CREATE TABLE clientes (
+    id VARCHAR(10) PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre VARCHAR(150) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    telefono VARCHAR(20),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+
+/* CREACIÓN DE LA TABLA DE ALIADOS */
+CREATE TABLE aliados (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre TEXT NOT NULL,
+    img BYTEA,
+    createdAt TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+
+/*  CREACIÓN DE LA TABLA DE LA COMPRA DE CLIENTE */
+CREATE TABLE comprasCliente (
+    id VARCHAR(15) PRIMARY KEY,
+    fecha DATE NOT NULL,
+    total DOUBLE PRECISION NOT NULL,
+    status TEXT NOT NULL,
+    id_cliente VARCHAR(15) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_cliente
+    FOREIGN KEY (id_cliente)
+    REFERENCES clientes(id)
+);
+
+
+
+
+/* CREACIÓN DE LA TABLA DE DETALLE DE COMPRA DE LOS CLIENTES */
+CREATE TABLE detalleCliente (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    cantidad INT NOT NULL, 
+    id_compra VARCHAR(15) NOT NULL,
+    id_producto VARCHAR(15) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_compra
+    FOREIGN KEY (id_compra)
+    REFERENCES comprasCliente(id),
+
+    CONSTRAINT fk_producto
+    FOREIGN KEY (id_producto)
+    REFERENCES productos(id)
+);
+
+
+
+/*Crear la tabla de las compras a los proveedores */
+CREATE TABLE comprasProveedores (
+    id VARCHAR(15) PRIMARY KEY,
+    fecha DATE NOT NULL,
+    total DOUBLE PRECISION NOT NULL,
+    status TEXT NOT NULL,
+    id_aliado UUID NOT NULL,
+    id_usuario VARCHAR(10) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_aliado
+    FOREIGN KEY (id_aliado)
+    REFERENCES aliados(id),
+
+    CONSTRAINT fk_usuario
+    FOREIGN KEY (id_usuario)
+    REFERENCES usuarios(id)
+);
+
+
+
+
+
+/*Crear la tabla del detalle de la compra de los proveedores */
+CREATE TABLE detalleProveedores (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    cantidad INT NOT NULL, 
+    id_compra_proveedor VARCHAR(15) NOT NULL,
+    id_producto VARCHAR(15) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_compraProveedor
+    FOREIGN KEY (id_compra_proveedor)
+    REFERENCES comprasProveedores(id),
+
+    CONSTRAINT fk_productoProveedor
+    FOREIGN KEY (id_producto)
+    REFERENCES productos(id)
+);
+
+
+
+
+
