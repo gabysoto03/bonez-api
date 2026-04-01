@@ -1,0 +1,281 @@
+/*TABLA DE PRODUCTOS */
+CREATE TABLE productos (
+    	id INT PRIMARY KEY,
+    	nombre VARCHAR(150) NOT NULL,
+    	descripcion TEXT,
+    	categoria VARCHAR(50) NOT NULL, 
+	tipo VARCHAR(50) NOT NULL, 
+    	precio DECIMAL(10,2) NOT NULL,
+	imagen BYTEA,
+	createAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updateAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+/* TABLA DE CLIENTES */
+CREATE TABLE clientes (
+    id VARCHAR(10) PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre VARCHAR(150) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    telefono VARCHAR(20),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+/*  TABLA DE ALIADOS */
+CREATE TABLE aliados (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre TEXT NOT NULL,
+    img BYTEA,
+    createdAt TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+
+/* TABLA DE LA COMPRA DE CLIENTE */
+CREATE TABLE comprasCliente (
+    id VARCHAR(15) PRIMARY KEY,
+    fecha DATE NOT NULL,
+    total DOUBLE PRECISION NOT NULL,
+    status TEXT NOT NULL,
+    id_cliente VARCHAR(15) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_cliente
+    FOREIGN KEY (id_cliente)
+    REFERENCES clientes(id)
+);
+
+
+
+/* TABLA DE DETALLE DE COMPRA DE LOS CLIENTES */
+CREATE TABLE detalleCliente (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    cantidad INT NOT NULL, 
+    id_compra VARCHAR(15) NOT NULL,
+    id_producto VARCHAR(15) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_compra
+    FOREIGN KEY (id_compra)
+    REFERENCES comprasCliente(id),
+
+    CONSTRAINT fk_producto
+    FOREIGN KEY (id_producto)
+    REFERENCES productos(id)
+);
+
+
+
+
+/* TABLA DE USUARIOS */
+CREATE TABLE usuarios (
+    id VARCHAR(10) PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre VARCHAR(150) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    telefono VARCHAR(20),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+/* Tabla de las compras a los proveedores */
+CREATE TABLE comprasProveedores (
+    id VARCHAR(15) PRIMARY KEY,
+    fecha DATE NOT NULL,
+    total DOUBLE PRECISION NOT NULL,
+    status TEXT NOT NULL,
+    id_aliado UUID NOT NULL,
+    id_usuario VARCHAR(10) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_aliado
+    FOREIGN KEY (id_aliado)
+    REFERENCES aliados(id),
+
+    CONSTRAINT fk_usuario
+    FOREIGN KEY (id_usuario)
+    REFERENCES usuarios(id)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*TABLA DE PRODUCTOS */
+CREATE TABLE productos (
+	id INT PRIMARY KEY,
+	nombre VARCHAR(150) NOT NULL,
+	descripcion TEXT,
+	categoria VARCHAR(50) NOT NULL, 
+	tipo VARCHAR(50) NOT NULL, 
+	precio DECIMAL(10,2) NOT NULL,
+	imagen BYTEA,
+	createAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updateAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+/* CREACIÓN DE LA TABLA DE USUARIOS */
+CREATE TABLE usuarios (
+    id VARCHAR(10) PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre VARCHAR(150) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    telefono VARCHAR(20),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+/* CREACIÓN DE LA TABLA DE CLIENTES */
+CREATE TABLE clientes (
+    id VARCHAR(10) PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre VARCHAR(150) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    telefono VARCHAR(20),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+
+/* CREACIÓN DE LA TABLA DE ALIADOS */
+CREATE TABLE aliados (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre TEXT NOT NULL,
+    img BYTEA,
+    createdAt TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+
+/*  CREACIÓN DE LA TABLA DE LA COMPRA DE CLIENTE */
+CREATE TABLE comprasCliente (
+    id VARCHAR(15) PRIMARY KEY,
+    fecha DATE NOT NULL,
+    total DOUBLE PRECISION NOT NULL,
+    status TEXT NOT NULL,
+    id_cliente VARCHAR(15) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_cliente
+    FOREIGN KEY (id_cliente)
+    REFERENCES clientes(id)
+);
+
+
+
+
+/* CREACIÓN DE LA TABLA DE DETALLE DE COMPRA DE LOS CLIENTES */
+CREATE TABLE detalleCliente (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    cantidad INT NOT NULL, 
+    id_compra VARCHAR(15) NOT NULL,
+    id_producto VARCHAR(15) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_compra
+    FOREIGN KEY (id_compra)
+    REFERENCES comprasCliente(id),
+
+    CONSTRAINT fk_producto
+    FOREIGN KEY (id_producto)
+    REFERENCES productos(id)
+);
+
+
+
+/*Crear la tabla de las compras a los proveedores */
+CREATE TABLE comprasProveedores (
+    id VARCHAR(15) PRIMARY KEY,
+    fecha DATE NOT NULL,
+    total DOUBLE PRECISION NOT NULL,
+    status TEXT NOT NULL,
+    id_aliado UUID NOT NULL,
+    id_usuario VARCHAR(10) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_aliado
+    FOREIGN KEY (id_aliado)
+    REFERENCES aliados(id),
+
+    CONSTRAINT fk_usuario
+    FOREIGN KEY (id_usuario)
+    REFERENCES usuarios(id)
+);
+
+
+
+
+
+/*Crear la tabla del detalle de la compra de los proveedores */
+CREATE TABLE detalleProveedores (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    cantidad INT NOT NULL, 
+    id_compra_proveedor VARCHAR(15) NOT NULL,
+    id_producto VARCHAR(15) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_compraProveedor
+    FOREIGN KEY (id_compra_proveedor)
+    REFERENCES comprasProveedores(id),
+
+    CONSTRAINT fk_productoProveedor
+    FOREIGN KEY (id_producto)
+    REFERENCES productos(id)
+);

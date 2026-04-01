@@ -58,13 +58,13 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const client = await pool.connect();
   try {
-    const { id, fecha, total, status, id_cliente, productos } = req.body;
+    const { id, fecha, total, status, id_cliente = null, productos } = req.body;
     await client.query('BEGIN');
 
     const compra = await client.query(
       `INSERT INTO comprasCliente (id, fecha, total, status, id_cliente)
        VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [id, fecha, total, status, id_cliente]
+      [id, fecha, total, status, id_cliente || null]
     );
 
     for (const item of productos) {
