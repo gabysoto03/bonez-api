@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const bcrypt = require('bcrypt');
+
+const SALT_ROUNDS = 10;
 
 // Obtener todos los clientes
 router.get('/', async (req, res) => {
@@ -32,11 +35,12 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { id, nombre, email, password, telefono } = req.body;
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
     const result = await pool.query(
       `INSERT INTO clientes (id, nombre, email, password, telefono)
        VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`, [id, nombre, email, password, telefono]
+       RETURNING *`, [id, nombre, email, hashedPassword, telefono]
     );
 
     res.status(201).json(result.rows[0]);

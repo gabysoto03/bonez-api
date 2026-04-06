@@ -24,6 +24,9 @@ app.use('/compras-cliente', comprasClienteRoutes);
 const comprasProveedoresRoutes = require('./routes/comprasProveedores');
 app.use('/compras-proveedores', comprasProveedoresRoutes);
 
+const usuariosRoutes = require('./routes/usuarios');
+app.use('/usuarios', usuariosRoutes);
+
 // puerto
 const PORT = 3000;
 
