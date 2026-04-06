@@ -37,14 +37,14 @@ router.get('/:id', async (req, res) => {
 // Crear usuario
 router.post('/', async (req, res) => {
   try {
-    const { id, nombre, email, password, telefono } = req.body;
+    const { id, nombre, email, password, telefono, id_rol } = req.body;
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
     const result = await pool.query(
-      `INSERT INTO usuarios (id, nombre, email, password, telefono)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO usuarios (id, nombre, email, password, telefono, id_rol)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [id, nombre, email, hashedPassword, telefono]
+      [id, nombre, email, hashedPassword, telefono, id_rol]
     );
 
     res.status(201).json(result.rows[0]);
@@ -60,15 +60,15 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, email, password, telefono } = req.body;
+    const { nombre, email, password, telefono, id_rol } = req.body;
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
     const result = await pool.query(
       `UPDATE usuarios
-       SET nombre = $1, email = $2, password = $3, telefono = $4, updatedat = CURRENT_TIMESTAMP
-       WHERE id = $5
+       SET nombre = $1, email = $2, password = $3, telefono = $4, id_rol = $5, updatedat = CURRENT_TIMESTAMP
+       WHERE id = $6
        RETURNING *`,
-      [nombre, email, hashedPassword, telefono, id]
+      [nombre, email, hashedPassword, telefono, id_rol, id]
     );
 
     if (result.rows.length === 0) { return res.status(404).json({ error: 'Usuario no encontrado' }); }

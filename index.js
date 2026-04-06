@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
@@ -26,6 +27,12 @@ app.use('/compras-proveedores', comprasProveedoresRoutes);
 
 const usuariosRoutes = require('./routes/usuarios');
 app.use('/usuarios', usuariosRoutes);
+
+const rolesRoutes = require('./routes/roles');
+app.use('/roles', rolesRoutes);
+
+const authRoutes = require('./routes/auth');
+app.use('/auth', authRoutes);
 
 // puerto
 const PORT = 3000;
