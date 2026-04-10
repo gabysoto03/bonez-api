@@ -37,8 +37,8 @@ router.post('/', async (req, res) => {
     const { descripcion } = req.body;
 
     const result = await pool.query(
-      `INSERT INTO roles (descripcion)
-       VALUES ($1)
+      `INSERT INTO roles (descripcion, status)
+       VALUES ($1, 'activo')
        RETURNING *`,
       [descripcion]
     );
