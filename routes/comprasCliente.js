@@ -58,13 +58,21 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const client = await pool.connect();
   try {
-    const { id, fecha, total, status, id_cliente = null, productos } = req.body;
+    const { id, fecha, total, status, id_cliente = null, email = null, productos } = req.body;
+
+    if (email !== null && email !== undefined && email !== '') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'El formato del email no es válido' });
+      }
+    }
+
     await client.query('BEGIN');
 
     const compra = await client.query(
-      `INSERT INTO comprasCliente (id, fecha, total, status, id_cliente)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [id, fecha, total, status, id_cliente || null]
+      `INSERT INTO comprasCliente (id, fecha, total, status, id_cliente, email)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [id, fecha, total, status, id_cliente || null, email || null]
     );
 
     for (const item of productos) {
@@ -95,13 +103,21 @@ router.put('/:id', async (req, res) => {
   const client = await pool.connect();
   try {
     const { id } = req.params;
-    const { fecha, total, status, id_cliente, productos } = req.body;
+    const { fecha, total, status, id_cliente, email = null, productos } = req.body;
+
+    if (email !== null && email !== undefined && email !== '') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'El formato del email no es válido' });
+      }
+    }
+
     await client.query('BEGIN');
 
     const compra = await client.query(
-      `UPDATE comprasCliente SET fecha = $1, total = $2, status = $3, id_cliente = $4, updatedat = CURRENT_TIMESTAMP
-       WHERE id = $5 RETURNING *`,
-      [fecha, total, status, id_cliente, id]
+      `UPDATE comprasCliente SET fecha = $1, total = $2, status = $3, id_cliente = $4, email = $5, updatedat = CURRENT_TIMESTAMP
+       WHERE id = $6 RETURNING *`,
+      [fecha, total, status, id_cliente, email || null, id]
     );
 
     if (compra.rows.length === 0) {
