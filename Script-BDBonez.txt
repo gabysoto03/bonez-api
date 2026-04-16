@@ -20,8 +20,13 @@ CREATE TABLE clientes (
     email VARCHAR(150) UNIQUE NOT NULL,
     password TEXT NOT NULL,
     telefono VARCHAR(20),
+    usuario_id VARCHAR(10),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_usuario_cliente
+    FOREIGN KEY (usuario_id)
+    REFERENCES usuarios(id)
 );
 
 
@@ -182,8 +187,13 @@ CREATE TABLE clientes (
     email VARCHAR(150) UNIQUE NOT NULL,
     password TEXT NOT NULL,
     telefono VARCHAR(20),
+    usuario_id VARCHAR(10),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_usuario_cliente
+    FOREIGN KEY (usuario_id)
+    REFERENCES usuarios(id)
 );
 
 
@@ -280,4 +290,15 @@ CREATE TABLE detalleProveedores (
     CONSTRAINT fk_productoProveedor
     FOREIGN KEY (id_producto)
     REFERENCES productos(id)
+);
+
+
+
+
+
+CREATE TABLE tallas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    descripcion VARCHAR(5),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 );

@@ -98,6 +98,50 @@ router.delete('/:id', async (req, res) => {
 });
 
 
+// Asignar administrador a uno o varios clientes
+router.put('/asignar-administrador', async (req, res) => {
+  try {
+    const { ids_clientes, id_usuario } = req.body;
+
+    if (!id_usuario) {
+      return res.status(400).json({ error: 'El campo id_usuario es requerido' });
+    }
+
+    if (!ids_clientes || (Array.isArray(ids_clientes) && ids_clientes.length === 0)) {
+      return res.status(400).json({ error: 'El campo ids_clientes es requerido' });
+    }
+
+    const ids = Array.isArray(ids_clientes) ? ids_clientes : [ids_clientes];
+
+    const usuario = await pool.query('SELECT id FROM usuarios WHERE id = $1', [id_usuario]);
+    if (usuario.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    const result = await pool.query(
+      `UPDATE clientes SET usuario_id = $1, updatedat = CURRENT_TIMESTAMP
+       WHERE id = ANY($2)
+       RETURNING *`,
+      [id_usuario, ids]
+    );
+
+    const actualizados = result.rows.map(r => r.id);
+    const noEncontrados = ids.filter(id => !actualizados.includes(id));
+
+    res.json({
+      message: 'Operación completada',
+      clientes_actualizados: result.rows,
+      ...(noEncontrados.length > 0 && { ids_no_encontrados: noEncontrados })
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al asignar administrador' });
+  }
+});
+
+
+
 // Obtener ID del cliente por nombre
 router.get('/buscar', async (req, res) => {
   try {
