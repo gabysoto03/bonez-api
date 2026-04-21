@@ -58,7 +58,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const client = await pool.connect();
   try {
-    const { id, fecha, total, status, id_cliente = null, email = null, productos } = req.body;
+    const { id, fecha, total, status, id_cliente = null, email = null, nombre = null, telefono = null, productos } = req.body;
 
     if (email !== null && email !== undefined && email !== '') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -70,9 +70,9 @@ router.post('/', async (req, res) => {
     await client.query('BEGIN');
 
     const compra = await client.query(
-      `INSERT INTO comprasCliente (id, fecha, total, status, id_cliente, email)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [id, fecha, total, status, id_cliente || null, email || null]
+      `INSERT INTO comprasCliente (id, fecha, total, status, id_cliente, email, nombre, telefono)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [id, fecha, total, status, id_cliente || null, email || null, nombre || null, telefono || null]
     );
 
     for (const item of productos) {
@@ -103,7 +103,7 @@ router.put('/:id', async (req, res) => {
   const client = await pool.connect();
   try {
     const { id } = req.params;
-    const { fecha, total, status, id_cliente, email = null, productos } = req.body;
+    const { fecha, total, status, id_cliente, email = null, nombre = null, telefono = null, productos } = req.body;
 
     if (email !== null && email !== undefined && email !== '') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -115,9 +115,9 @@ router.put('/:id', async (req, res) => {
     await client.query('BEGIN');
 
     const compra = await client.query(
-      `UPDATE comprasCliente SET fecha = $1, total = $2, status = $3, id_cliente = $4, email = $5, updatedat = CURRENT_TIMESTAMP
-       WHERE id = $6 RETURNING *`,
-      [fecha, total, status, id_cliente, email || null, id]
+      `UPDATE comprasCliente SET fecha = $1, total = $2, status = $3, id_cliente = $4, email = $5, nombre = $6, telefono = $7, updatedat = CURRENT_TIMESTAMP
+       WHERE id = $8 RETURNING *`,
+      [fecha, total, status, id_cliente, email || null, nombre || null, telefono || null, id]
     );
 
     if (compra.rows.length === 0) {

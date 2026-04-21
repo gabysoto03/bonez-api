@@ -189,3 +189,9 @@ CREATE TABLE roles (
 ALTER TABLE usuarios
 ADD COLUMN razon_social VARCHAR(255) NOT NULL,
 ADD COLUMN cargo_empresarial VARCHAR(255) NOT NULL;
+
+
+
+ALTER TABLE comprasCliente
+ADD COLUMN telefono VARCHAR(20),
+ADD COLUMN nombre VARCHAR(255);
