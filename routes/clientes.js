@@ -53,6 +53,52 @@ router.post('/', async (req, res) => {
 
 
 
+// Asignar administrador a uno o varios clientes
+router.put('/asignar-administrador', async (req, res) => {
+  try {
+    console.log('Body recibido:', req.body);
+
+    const { ids_clientes, usuario_id } = req.body;
+
+    if (!usuario_id) {
+      return res.status(400).json({ error: 'El campo usuario_id es requerido' });
+    }
+
+    if (!ids_clientes || (Array.isArray(ids_clientes) && ids_clientes.length === 0)) {
+      return res.status(400).json({ error: 'El campo ids_clientes es requerido' });
+    }
+
+    const ids = Array.isArray(ids_clientes) ? ids_clientes : [ids_clientes];
+
+    const administrador = await pool.query('SELECT id FROM usuarios WHERE id = $1', [usuario_id]);
+    if (administrador.rows.length === 0) {
+      return res.status(404).json({ error: 'Administrador no encontrado' });
+    }
+
+    const result = await pool.query(
+      `UPDATE clientes SET usuario_id = $1, updatedat = CURRENT_TIMESTAMP
+       WHERE id = ANY($2)
+       RETURNING *`,
+      [usuario_id, ids]
+    );
+
+    const actualizados = result.rows.map(r => r.id);
+    const noEncontrados = ids.filter(id => !actualizados.includes(id));
+
+    res.json({
+      message: 'Operación completada',
+      clientes_actualizados: result.rows,
+      ...(noEncontrados.length > 0 && { ids_no_encontrados: noEncontrados })
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al asignar administrador' });
+  }
+});
+
+
+
 // Actualizar cliente por ID
 router.put('/:id', async (req, res) => {
   try {
@@ -60,7 +106,7 @@ router.put('/:id', async (req, res) => {
     const { nombre, email, password, telefono } = req.body;
 
     const result = await pool.query(
-      `UPDATE clientes SET nombre = $1, email = $2, password = $3, telefono = $4, updateat = CURRENT_TIMESTAMP
+      `UPDATE clientes SET nombre = $1, email = $2, password = $3, telefono = $4, updatedat = CURRENT_TIMESTAMP
        WHERE id = $5
        RETURNING *`, [nombre, email, password, telefono, id]
     );
@@ -94,49 +140,6 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al eliminar cliente' });
-  }
-});
-
-
-// Asignar administrador a uno o varios clientes
-router.put('/asignar-administrador', async (req, res) => {
-  try {
-    const { ids_clientes, id_usuario } = req.body;
-
-    if (!id_usuario) {
-      return res.status(400).json({ error: 'El campo id_usuario es requerido' });
-    }
-
-    if (!ids_clientes || (Array.isArray(ids_clientes) && ids_clientes.length === 0)) {
-      return res.status(400).json({ error: 'El campo ids_clientes es requerido' });
-    }
-
-    const ids = Array.isArray(ids_clientes) ? ids_clientes : [ids_clientes];
-
-    const usuario = await pool.query('SELECT id FROM usuarios WHERE id = $1', [id_usuario]);
-    if (usuario.rows.length === 0) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
-
-    const result = await pool.query(
-      `UPDATE clientes SET usuario_id = $1, updatedat = CURRENT_TIMESTAMP
-       WHERE id = ANY($2)
-       RETURNING *`,
-      [id_usuario, ids]
-    );
-
-    const actualizados = result.rows.map(r => r.id);
-    const noEncontrados = ids.filter(id => !actualizados.includes(id));
-
-    res.json({
-      message: 'Operación completada',
-      clientes_actualizados: result.rows,
-      ...(noEncontrados.length > 0 && { ids_no_encontrados: noEncontrados })
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al asignar administrador' });
   }
 });
 
