@@ -56,7 +56,6 @@ router.post('/', async (req, res) => {
 // Asignar administrador a uno o varios clientes
 router.put('/asignar-administrador', async (req, res) => {
   try {
-    console.log('Body recibido:', req.body);
 
     const { ids_clientes, usuario_id } = req.body;
 

@@ -21,12 +21,7 @@ router.post('/login', async (req, res) => {
 
     if (usuarioResult.rows.length > 0) {
       const usuario = usuarioResult.rows[0];
-      console.log('[LOGIN] Usuario encontrado en tabla usuarios:', usuario.email);
-      console.log('[LOGIN] Password recibido (texto plano):', password);
-      console.log('[LOGIN] Password almacenado en BD:', usuario.password);
-      console.log('[LOGIN] ¿Password recibido ya es un hash bcrypt?:', password.startsWith('$2b$') || password.startsWith('$2a$'));
       const passwordValido = await bcrypt.compare(password, usuario.password);
-      console.log('[LOGIN] Resultado bcrypt.compare:', passwordValido);
 
       if (!passwordValido) {
         return res.status(401).json({ error: 'Credenciales inválidas' });
@@ -55,9 +50,7 @@ router.post('/login', async (req, res) => {
 
     if (clienteResult.rows.length > 0) {
       const cliente = clienteResult.rows[0];
-      console.log('[LOGIN] Usuario encontrado en tabla clientes:', cliente.email);
       const passwordValido = await bcrypt.compare(password, cliente.password);
-      console.log('[LOGIN] Password válido (cliente):', passwordValido);
 
       if (!passwordValido) {
         return res.status(401).json({ error: 'Credenciales inválidas' });
