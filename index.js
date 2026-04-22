@@ -31,6 +31,12 @@ app.use('/usuarios', usuariosRoutes);
 const rolesRoutes = require('./routes/roles');
 app.use('/roles', rolesRoutes);
 
+const tallasRoutes = require('./routes/tallas');
+app.use('/tallas', tallasRoutes);
+
+const stockRoutes = require('./routes/stock');
+app.use('/stock', stockRoutes);
+
 const authRoutes = require('./routes/auth');
 app.use('/auth', authRoutes);
 

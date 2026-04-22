@@ -61,7 +61,16 @@ router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { nombre, email, password, telefono, razon_social, cargo_empresarial, id_rol } = req.body;
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+    // Solo hashear si viene una contraseña nueva en texto plano
+    let hashedPassword;
+    if (password && !password.startsWith('$2b$') && !password.startsWith('$2a$')) {
+      hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    } else {
+      const current = await pool.query('SELECT password FROM usuarios WHERE id = $1', [id]);
+      if (current.rows.length === 0) { return res.status(404).json({ error: 'Usuario no encontrado' }); }
+      hashedPassword = current.rows[0].password;
+    }
 
     const result = await pool.query(
       `UPDATE usuarios
