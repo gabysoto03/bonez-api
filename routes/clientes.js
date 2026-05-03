@@ -34,13 +34,13 @@ router.get('/:id', async (req, res) => {
 // Agregar un nuevo cliente
 router.post('/', async (req, res) => {
   try {
-    const { id, nombre, email, password, telefono } = req.body;
+    const { id, nombre, email, password, telefono, razon_social, cargo_empresarial } = req.body;
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
     const result = await pool.query(
-      `INSERT INTO clientes (id, nombre, email, password, telefono)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`, [id, nombre, email, hashedPassword, telefono]
+      `INSERT INTO clientes (id, nombre, email, password, telefono, razon_social, cargo_empresarial)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING *`, [id, nombre, email, hashedPassword, telefono, razon_social ?? null, cargo_empresarial ?? null]
     );
 
     res.status(201).json(result.rows[0]);
@@ -102,7 +102,7 @@ router.put('/asignar-administrador', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, email, password, telefono } = req.body;
+    const { nombre, email, password, telefono, razon_social, cargo_empresarial } = req.body;
 
     // Solo hashear si viene una contraseña nueva en texto plano
     let hashedPassword;
@@ -115,9 +115,9 @@ router.put('/:id', async (req, res) => {
     }
 
     const result = await pool.query(
-      `UPDATE clientes SET nombre = $1, email = $2, password = $3, telefono = $4, updatedat = CURRENT_TIMESTAMP
-       WHERE id = $5
-       RETURNING *`, [nombre, email, hashedPassword, telefono, id]
+      `UPDATE clientes SET nombre = $1, email = $2, password = $3, telefono = $4, razon_social = $5, cargo_empresarial = $6, updatedat = CURRENT_TIMESTAMP
+       WHERE id = $7
+       RETURNING *`, [nombre, email, hashedPassword, telefono, razon_social ?? null, cargo_empresarial ?? null, id]
     );
 
     if (result.rows.length === 0) {

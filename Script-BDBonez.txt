@@ -20,6 +20,8 @@ CREATE TABLE clientes (
     email VARCHAR(150) UNIQUE NOT NULL,
     password TEXT NOT NULL,
     telefono VARCHAR(20),
+    razon_social VARCHAR(200),
+    cargo_empresarial VARCHAR(150),
     usuario_id varchar(20),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
