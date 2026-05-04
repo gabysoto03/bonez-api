@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
     const result = await Promise.all(
       compras.rows.map(async (compra) => {
         const detalles = await pool.query(
-          `SELECT id, cantidad, id_producto, createdat, updatedat
+          `SELECT id, cantidad, talla, id_producto, createdat, updatedat
            FROM detalleProveedores
            WHERE id_compra_proveedor = $1 AND activo = true`,
           [compra.id]
@@ -61,6 +61,11 @@ router.post('/', async (req, res) => {
   const client = await pool.connect();
   try {
     const { id, fecha, total, status, id_aliado, id_usuario, productos } = req.body;
+
+    if (productos.some(item => !item.talla)) {
+      return res.status(400).json({ message: 'El campo talla es requerido en cada producto' });
+    }
+
     await client.query('BEGIN');
 
     const compra = await client.query(
@@ -71,9 +76,9 @@ router.post('/', async (req, res) => {
 
     for (const item of productos) {
       await client.query(
-        `INSERT INTO detalleProveedores (cantidad, id_compra_proveedor, id_producto)
-         VALUES ($1, $2, $3)`,
-        [item.cantidad, compra.rows[0].id, item.id_producto]
+        `INSERT INTO detalleProveedores (cantidad, talla, id_compra_proveedor, id_producto)
+         VALUES ($1, $2, $3, $4)`,
+        [item.cantidad, item.talla, compra.rows[0].id, item.id_producto]
       );
     }
 
@@ -96,6 +101,11 @@ router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { fecha, total, status, id_aliado, id_usuario, productos } = req.body;
+
+    if (productos.some(item => !item.talla)) {
+      return res.status(400).json({ message: 'El campo talla es requerido en cada producto' });
+    }
+
     await client.query('BEGIN');
 
     const compra = await client.query(
@@ -114,9 +124,9 @@ router.put('/:id', async (req, res) => {
 
     for (const item of productos) {
       await client.query(
-        `INSERT INTO detalleProveedores (cantidad, id_compra_proveedor, id_producto)
-         VALUES ($1, $2, $3)`,
-        [item.cantidad, id, item.id_producto]
+        `INSERT INTO detalleProveedores (cantidad, talla, id_compra_proveedor, id_producto)
+         VALUES ($1, $2, $3, $4)`,
+        [item.cantidad, item.talla, id, item.id_producto]
       );
     }
 

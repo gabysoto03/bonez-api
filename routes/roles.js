@@ -7,7 +7,7 @@ const { handleError } = require('../middleware/errors');
 // Obtener todos los roles
 router.get('/', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM roles WHERE activo = true ORDER BY createat ASC');
+    const result = await pool.query('SELECT * FROM roles WHERE activo = true ORDER BY createdat ASC');
     res.json(result.rows);
   } catch (error) {
     console.error(error);

@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
     const result = await Promise.all(
       compras.rows.map(async (compra) => {
         const detalles = await pool.query(
-          `SELECT dc.id, dc.cantidad, dc.id_producto, dc.createdat, dc.updatedat
+          `SELECT dc.id, dc.cantidad, dc.talla, dc.id_producto, dc.createdat, dc.updatedat
            FROM detalleCliente dc
            WHERE dc.id_compra = $1 AND dc.activo = true`,
           [compra.id]
@@ -68,6 +68,10 @@ router.post('/', async (req, res) => {
       }
     }
 
+    if (productos.some(item => !item.talla)) {
+      return res.status(400).json({ message: 'El campo talla es requerido en cada producto' });
+    }
+
     await client.query('BEGIN');
 
     const compra = await client.query(
@@ -78,9 +82,9 @@ router.post('/', async (req, res) => {
 
     for (const item of productos) {
       await client.query(
-        `INSERT INTO detalleCliente (id, cantidad, id_compra, id_producto)
-         VALUES (gen_random_uuid(), $1, $2, $3)`,
-        [item.cantidad, compra.rows[0].id, item.id_producto]
+        `INSERT INTO detalleCliente (id, cantidad, talla, id_compra, id_producto)
+         VALUES (gen_random_uuid(), $1, $2, $3, $4)`,
+        [item.cantidad, item.talla, compra.rows[0].id, item.id_producto]
       );
     }
 
@@ -113,6 +117,10 @@ router.put('/:id', async (req, res) => {
       }
     }
 
+    if (productos.some(item => !item.talla)) {
+      return res.status(400).json({ message: 'El campo talla es requerido en cada producto' });
+    }
+
     await client.query('BEGIN');
 
     const compra = await client.query(
@@ -131,9 +139,9 @@ router.put('/:id', async (req, res) => {
 
     for (const item of productos) {
       await client.query(
-        `INSERT INTO detalleCliente (id, cantidad, id_compra, id_producto)
-         VALUES (gen_random_uuid(), $1, $2, $3)`,
-        [item.cantidad, id, item.id_producto]
+        `INSERT INTO detalleCliente (id, cantidad, talla, id_compra, id_producto)
+         VALUES (gen_random_uuid(), $1, $2, $3, $4)`,
+        [item.cantidad, item.talla, id, item.id_producto]
       );
     }
 
