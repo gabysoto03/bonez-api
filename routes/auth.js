@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { handleError } = require('../middleware/errors');
 
 
 // Login
@@ -11,7 +12,7 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email y contraseña son requeridos' });
+      return res.status(400).json({ message: 'Email y contraseña son requeridos' });
     }
 
     // Buscar primero en usuarios (admin)
@@ -24,7 +25,7 @@ router.post('/login', async (req, res) => {
       const passwordValido = await bcrypt.compare(password, usuario.password);
 
       if (!passwordValido) {
-        return res.status(401).json({ error: 'Credenciales inválidas' });
+        return res.status(401).json({ message: 'Credenciales inválidas' });
       }
 
       const token = jwt.sign(
@@ -53,7 +54,7 @@ router.post('/login', async (req, res) => {
       const passwordValido = await bcrypt.compare(password, cliente.password);
 
       if (!passwordValido) {
-        return res.status(401).json({ error: 'Credenciales inválidas' });
+        return res.status(401).json({ message: 'Credenciales inválidas' });
       }
 
       const token = jwt.sign(
@@ -73,11 +74,11 @@ router.post('/login', async (req, res) => {
     }
 
     // No encontrado en ninguna tabla
-    return res.status(401).json({ error: 'Credenciales inválidas' });
+    return res.status(401).json({ message: 'Credenciales inválidas' });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al iniciar sesión' });
+    handleError(res, error, 'Error al iniciar sesión');
   }
 });
 

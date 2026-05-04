@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const { handleError } = require('../middleware/errors');
 
-// Obtener todos los productos. 
+// Obtener todos los productos.
 router.get('/', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM productos');
     res.json(result.rows);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener productos' });
+    handleError(res, error, 'Error al obtener productos');
   }
 });
 
@@ -19,11 +20,11 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query('SELECT * FROM productos WHERE id = $1', [id]);
-    if (result.rows.length === 0) { return res.status(404).json({ error: 'Producto no encontrado' });}
+    if (result.rows.length === 0) { return res.status(404).json({ message: 'Producto no encontrado' }); }
     res.json(result.rows[0]);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener el producto' });
+    handleError(res, error, 'Error al obtener el producto');
   }
 });
 
@@ -39,7 +40,7 @@ router.post('/', async (req, res) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO productos 
+      `INSERT INTO productos
       (id, nombre, descripcion, categoria, tipo, precio, imagen)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *`,
@@ -50,7 +51,7 @@ router.post('/', async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al crear producto' });
+    handleError(res, error, 'Error al crear producto');
   }
 });
 
@@ -65,9 +66,8 @@ router.delete('/:id', async (req, res) => {
       [id]
     );
 
-    // Si no encontró el producto
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
+      return res.status(404).json({ message: 'Producto no encontrado' });
     }
 
     res.json({
@@ -77,7 +77,7 @@ router.delete('/:id', async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al eliminar producto' });
+    handleError(res, error, 'Error al eliminar producto');
   }
 });
 
@@ -106,9 +106,8 @@ router.put('/:id', async (req, res) => {
         : [nombre, descripcion, categoria, tipo, precio, id]
     );
 
-    // Si no existe
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
+      return res.status(404).json({ message: 'Producto no encontrado' });
     }
 
     res.json({
@@ -118,7 +117,7 @@ router.put('/:id', async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al actualizar producto' });
+    handleError(res, error, 'Error al actualizar producto');
   }
 });
 
@@ -129,11 +128,11 @@ router.get('/buscar', async (req, res) => {
   try {
     const { nombre } = req.query;
     const result = await pool.query( 'SELECT id FROM productos WHERE nombre = $1', [nombre]);
-    if (result.rows.length === 0) { return res.status(404).json({ error: 'Producto no encontrado' });}
+    if (result.rows.length === 0) { return res.status(404).json({ message: 'Producto no encontrado' }); }
     res.json({ id: result.rows[0].id });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al buscar producto' });
+    handleError(res, error, 'Error al buscar producto');
   }
 });
 

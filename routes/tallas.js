@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const { handleError } = require('../middleware/errors');
 
 
 // Obtener todas las tallas
@@ -10,7 +11,7 @@ router.get('/', async (req, res) => {
     res.json(result.rows);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener tallas' });
+    handleError(res, error, 'Error al obtener tallas');
   }
 });
 
@@ -20,11 +21,11 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query('SELECT * FROM tallas WHERE id = $1', [id]);
-    if (result.rows.length === 0) { return res.status(404).json({ error: 'Talla no encontrada' }); }
+    if (result.rows.length === 0) { return res.status(404).json({ message: 'Talla no encontrada' }); }
     res.json(result.rows[0]);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener la talla' });
+    handleError(res, error, 'Error al obtener la talla');
   }
 });
 
@@ -35,7 +36,7 @@ router.post('/', async (req, res) => {
     const { descripcion } = req.body;
 
     if (!descripcion) {
-      return res.status(400).json({ error: 'El campo descripcion es requerido' });
+      return res.status(400).json({ message: 'El campo descripcion es requerido' });
     }
 
     const result = await pool.query(
@@ -46,7 +47,7 @@ router.post('/', async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al crear la talla' });
+    handleError(res, error, 'Error al crear la talla');
   }
 });
 
@@ -58,7 +59,7 @@ router.put('/:id', async (req, res) => {
     const { descripcion } = req.body;
 
     if (!descripcion) {
-      return res.status(400).json({ error: 'El campo descripcion es requerido' });
+      return res.status(400).json({ message: 'El campo descripcion es requerido' });
     }
 
     const result = await pool.query(
@@ -66,12 +67,12 @@ router.put('/:id', async (req, res) => {
       [descripcion, id]
     );
 
-    if (result.rows.length === 0) { return res.status(404).json({ error: 'Talla no encontrada' }); }
+    if (result.rows.length === 0) { return res.status(404).json({ message: 'Talla no encontrada' }); }
 
     res.json({ message: 'Talla actualizada correctamente', talla: result.rows[0] });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al actualizar la talla' });
+    handleError(res, error, 'Error al actualizar la talla');
   }
 });
 
@@ -82,12 +83,12 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
     const result = await pool.query('DELETE FROM tallas WHERE id = $1 RETURNING *', [id]);
 
-    if (result.rows.length === 0) { return res.status(404).json({ error: 'Talla no encontrada' }); }
+    if (result.rows.length === 0) { return res.status(404).json({ message: 'Talla no encontrada' }); }
 
     res.json({ message: 'Talla eliminada correctamente', talla: result.rows[0] });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al eliminar la talla' });
+    handleError(res, error, 'Error al eliminar la talla');
   }
 });
 

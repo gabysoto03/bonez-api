@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const { handleError } = require('../middleware/errors');
 
 
 // Obtener todas las compras con sus productos
@@ -24,7 +25,7 @@ router.get('/', async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener compras' });
+    handleError(res, error, 'Error al obtener compras');
   }
 });
 
@@ -35,7 +36,7 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const compra = await pool.query( 'SELECT * FROM comprasCliente WHERE id = $1', [id]);
-    if (compra.rows.length === 0) { return res.status(404).json({ error: 'Compra no encontrada' });}
+    if (compra.rows.length === 0) { return res.status(404).json({ message: 'Compra no encontrada' }); }
 
     const detalles = await pool.query(
       `SELECT dc.id, dc.cantidad, dc.id_producto, dc.createdat, dc.updatedat
@@ -48,7 +49,7 @@ router.get('/:id', async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener la compra' });
+    handleError(res, error, 'Error al obtener la compra');
   }
 });
 
@@ -63,7 +64,7 @@ router.post('/', async (req, res) => {
     if (email !== null && email !== undefined && email !== '') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        return res.status(400).json({ error: 'El formato del email no es válido' });
+        return res.status(400).json({ message: 'El formato del email no es válido' });
       }
     }
 
@@ -90,7 +91,7 @@ router.post('/', async (req, res) => {
   } catch (error) {
     await client.query('ROLLBACK');
     console.error(error);
-    res.status(500).json({ error: 'Error al crear la compra' });
+    handleError(res, error, 'Error al crear la compra');
   } finally {
     client.release();
   }
@@ -108,7 +109,7 @@ router.put('/:id', async (req, res) => {
     if (email !== null && email !== undefined && email !== '') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        return res.status(400).json({ error: 'El formato del email no es válido' });
+        return res.status(400).json({ message: 'El formato del email no es válido' });
       }
     }
 
@@ -122,7 +123,7 @@ router.put('/:id', async (req, res) => {
 
     if (compra.rows.length === 0) {
       await client.query('ROLLBACK');
-      return res.status(404).json({ error: 'Compra no encontrada' });
+      return res.status(404).json({ message: 'Compra no encontrada' });
     }
 
     // Eliminar detalles anteriores y reinsertar
@@ -143,7 +144,7 @@ router.put('/:id', async (req, res) => {
   } catch (error) {
     await client.query('ROLLBACK');
     console.error(error);
-    res.status(500).json({ error: 'Error al actualizar la compra' });
+    handleError(res, error, 'Error al actualizar la compra');
   } finally {
     client.release();
   }
@@ -162,7 +163,7 @@ router.delete('/:id', async (req, res) => {
 
     if (compra.rows.length === 0) {
       await client.query('ROLLBACK');
-      return res.status(404).json({ error: 'Compra no encontrada' });
+      return res.status(404).json({ message: 'Compra no encontrada' });
     }
 
     await client.query('COMMIT');
@@ -171,7 +172,7 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     await client.query('ROLLBACK');
     console.error(error);
-    res.status(500).json({ error: 'Error al eliminar la compra' });
+    handleError(res, error, 'Error al eliminar la compra');
   } finally {
     client.release();
   }

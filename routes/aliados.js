@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const { handleError } = require('../middleware/errors');
 
 // Obtener todos los aliados
 router.get('/', async (req, res) => {
@@ -9,7 +10,7 @@ router.get('/', async (req, res) => {
     res.json(result.rows);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener aliados' });
+    handleError(res, error, 'Error al obtener aliados');
   }
 });
 
@@ -34,7 +35,7 @@ router.post('/', async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al crear aliado' });
+    handleError(res, error, 'Error al crear aliado');
   }
 });
 
@@ -61,14 +62,14 @@ router.put('/:id', async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Aliado no encontrado' });
+      return res.status(404).json({ message: 'Aliado no encontrado' });
     }
 
     res.json({ message: 'Aliado actualizado correctamente', aliado: result.rows[0] });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al actualizar aliado' });
+    handleError(res, error, 'Error al actualizar aliado');
   }
 });
 
@@ -84,14 +85,14 @@ router.delete('/:id', async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Aliado no encontrado' });
+      return res.status(404).json({ message: 'Aliado no encontrado' });
     }
 
     res.json({ message: 'Aliado eliminado correctamente', aliado: result.rows[0] });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al eliminar aliado' });
+    handleError(res, error, 'Error al eliminar aliado');
   }
 });
 

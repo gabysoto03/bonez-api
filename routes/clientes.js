@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 const bcrypt = require('bcrypt');
+const { handleError } = require('../middleware/errors');
 
 const SALT_ROUNDS = 10;
 
@@ -12,7 +13,7 @@ router.get('/', async (req, res) => {
     res.json(result.rows);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener clientes' });
+    handleError(res, error, 'Error al obtener clientes');
   }
 });
 
@@ -23,11 +24,11 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query('SELECT * FROM clientes WHERE id = $1', [id]);
-    if (result.rows.length === 0) { return res.status(404).json({ error: 'Cliente no encontrado' });}
+    if (result.rows.length === 0) { return res.status(404).json({ message: 'Cliente no encontrado' }); }
     res.json(result.rows[0]);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener el cliente' });
+    handleError(res, error, 'Error al obtener el cliente');
   }
 });
 
@@ -47,7 +48,7 @@ router.post('/', async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al crear cliente' });
+    handleError(res, error, 'Error al crear cliente');
   }
 });
 
@@ -60,18 +61,18 @@ router.put('/asignar-administrador', async (req, res) => {
     const { ids_clientes, usuario_id } = req.body;
 
     if (!usuario_id) {
-      return res.status(400).json({ error: 'El campo usuario_id es requerido' });
+      return res.status(400).json({ message: 'El campo usuario_id es requerido' });
     }
 
     if (!ids_clientes || (Array.isArray(ids_clientes) && ids_clientes.length === 0)) {
-      return res.status(400).json({ error: 'El campo ids_clientes es requerido' });
+      return res.status(400).json({ message: 'El campo ids_clientes es requerido' });
     }
 
     const ids = Array.isArray(ids_clientes) ? ids_clientes : [ids_clientes];
 
     const administrador = await pool.query('SELECT id FROM usuarios WHERE id = $1', [usuario_id]);
     if (administrador.rows.length === 0) {
-      return res.status(404).json({ error: 'Administrador no encontrado' });
+      return res.status(404).json({ message: 'Administrador no encontrado' });
     }
 
     const result = await pool.query(
@@ -92,7 +93,7 @@ router.put('/asignar-administrador', async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al asignar administrador' });
+    handleError(res, error, 'Error al asignar administrador');
   }
 });
 
@@ -110,7 +111,7 @@ router.put('/:id', async (req, res) => {
       hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     } else {
       const current = await pool.query('SELECT password FROM clientes WHERE id = $1', [id]);
-      if (current.rows.length === 0) { return res.status(404).json({ error: 'Cliente no encontrado' }); }
+      if (current.rows.length === 0) { return res.status(404).json({ message: 'Cliente no encontrado' }); }
       hashedPassword = current.rows[0].password;
     }
 
@@ -121,14 +122,14 @@ router.put('/:id', async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Cliente no encontrado' });
+      return res.status(404).json({ message: 'Cliente no encontrado' });
     }
 
     res.json({ message: 'Cliente actualizado correctamente', cliente: result.rows[0] });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al actualizar cliente' });
+    handleError(res, error, 'Error al actualizar cliente');
   }
 });
 
@@ -141,14 +142,14 @@ router.delete('/:id', async (req, res) => {
     const result = await pool.query( 'DELETE FROM clientes WHERE id = $1 RETURNING *', [id]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Cliente no encontrado' });
+      return res.status(404).json({ message: 'Cliente no encontrado' });
     }
 
     res.json({ message: 'Cliente eliminado correctamente', cliente: result.rows[0] });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al eliminar cliente' });
+    handleError(res, error, 'Error al eliminar cliente');
   }
 });
 
@@ -159,11 +160,11 @@ router.get('/buscar', async (req, res) => {
   try {
     const { nombre } = req.query;
     const result = await pool.query( 'SELECT id FROM clientes WHERE nombre = $1',[nombre]);
-    if (result.rows.length === 0) { return res.status(404).json({ error: 'Cliente no encontrado' });}
+    if (result.rows.length === 0) { return res.status(404).json({ message: 'Cliente no encontrado' }); }
     res.json({ id: result.rows[0].id });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al buscar cliente' });
+    handleError(res, error, 'Error al buscar cliente');
   }
 });
 
