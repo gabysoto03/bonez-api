@@ -17,7 +17,7 @@ router.post('/login', async (req, res) => {
 
     // Buscar primero en usuarios (admin)
     const usuarioResult = await pool.query(
-      'SELECT * FROM usuarios WHERE email = $1', [email]
+      'SELECT * FROM usuarios WHERE email = $1 AND activo = true', [email]
     );
 
     if (usuarioResult.rows.length > 0) {
@@ -46,7 +46,7 @@ router.post('/login', async (req, res) => {
 
     // Buscar en clientes
     const clienteResult = await pool.query(
-      'SELECT * FROM clientes WHERE email = $1', [email]
+      'SELECT * FROM clientes WHERE email = $1 AND activo = true', [email]
     );
 
     if (clienteResult.rows.length > 0) {

@@ -7,7 +7,7 @@ const { handleError } = require('../middleware/errors');
 // Obtener todas las tallas
 router.get('/', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM tallas ORDER BY id ASC');
+    const result = await pool.query('SELECT * FROM tallas WHERE activo = true ORDER BY id ASC');
     res.json(result.rows);
   } catch (error) {
     console.error(error);
@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await pool.query('SELECT * FROM tallas WHERE id = $1', [id]);
+    const result = await pool.query('SELECT * FROM tallas WHERE id = $1 AND activo = true', [id]);
     if (result.rows.length === 0) { return res.status(404).json({ message: 'Talla no encontrada' }); }
     res.json(result.rows[0]);
   } catch (error) {
@@ -81,7 +81,9 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await pool.query('DELETE FROM tallas WHERE id = $1 RETURNING *', [id]);
+    const result = await pool.query(
+      'UPDATE tallas SET activo = false WHERE id = $1 AND activo = true RETURNING *', [id]
+    );
 
     if (result.rows.length === 0) { return res.status(404).json({ message: 'Talla no encontrada' }); }
 

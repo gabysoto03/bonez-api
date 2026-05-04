@@ -6,7 +6,7 @@ const { handleError } = require('../middleware/errors');
 // Obtener todos los productos.
 router.get('/', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM productos');
+    const result = await pool.query('SELECT * FROM productos WHERE activo = true');
     res.json(result.rows);
   } catch (error) {
     console.error(error);
@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await pool.query('SELECT * FROM productos WHERE id = $1', [id]);
+    const result = await pool.query('SELECT * FROM productos WHERE id = $1 AND activo = true', [id]);
     if (result.rows.length === 0) { return res.status(404).json({ message: 'Producto no encontrado' }); }
     res.json(result.rows[0]);
   } catch (error) {
@@ -62,7 +62,7 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
 
     const result = await pool.query(
-      'DELETE FROM productos WHERE id = $1 RETURNING *',
+      'UPDATE productos SET activo = false WHERE id = $1 AND activo = true RETURNING *',
       [id]
     );
 
@@ -127,7 +127,7 @@ router.put('/:id', async (req, res) => {
 router.get('/buscar', async (req, res) => {
   try {
     const { nombre } = req.query;
-    const result = await pool.query( 'SELECT id FROM productos WHERE nombre = $1', [nombre]);
+    const result = await pool.query( 'SELECT id FROM productos WHERE nombre = $1 AND activo = true', [nombre]);
     if (result.rows.length === 0) { return res.status(404).json({ message: 'Producto no encontrado' }); }
     res.json({ id: result.rows[0].id });
   } catch (error) {

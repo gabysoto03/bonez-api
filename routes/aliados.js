@@ -6,7 +6,7 @@ const { handleError } = require('../middleware/errors');
 // Obtener todos los aliados
 router.get('/', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM aliados');
+    const result = await pool.query('SELECT * FROM aliados WHERE activo = true');
     res.json(result.rows);
   } catch (error) {
     console.error(error);
@@ -80,7 +80,7 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
 
     const result = await pool.query(
-      'DELETE FROM aliados WHERE id = $1 RETURNING *',
+      'UPDATE aliados SET activo = false WHERE id = $1 AND activo = true RETURNING *',
       [id]
     );
 

@@ -7,14 +7,14 @@ const { handleError } = require('../middleware/errors');
 // Obtener todas las compras con sus productos
 router.get('/', async (req, res) => {
   try {
-    const compras = await pool.query('SELECT * FROM comprasCliente');
+    const compras = await pool.query('SELECT * FROM comprasCliente WHERE activo = true');
 
     const result = await Promise.all(
       compras.rows.map(async (compra) => {
         const detalles = await pool.query(
           `SELECT dc.id, dc.cantidad, dc.id_producto, dc.createdat, dc.updatedat
            FROM detalleCliente dc
-           WHERE dc.id_compra = $1`,
+           WHERE dc.id_compra = $1 AND dc.activo = true`,
           [compra.id]
         );
         return { ...compra, productos: detalles.rows };
@@ -35,13 +35,13 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const compra = await pool.query( 'SELECT * FROM comprasCliente WHERE id = $1', [id]);
+    const compra = await pool.query( 'SELECT * FROM comprasCliente WHERE id = $1 AND activo = true', [id]);
     if (compra.rows.length === 0) { return res.status(404).json({ message: 'Compra no encontrada' }); }
 
     const detalles = await pool.query(
       `SELECT dc.id, dc.cantidad, dc.id_producto, dc.createdat, dc.updatedat
        FROM detalleCliente dc
-       WHERE dc.id_compra = $1`,
+       WHERE dc.id_compra = $1 AND dc.activo = true`,
       [id]
     );
 
@@ -158,13 +158,17 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     await client.query('BEGIN');
-    await client.query('DELETE FROM detalleCliente WHERE id_compra = $1', [id]);
-    const compra = await client.query( 'DELETE FROM comprasCliente WHERE id = $1 RETURNING *', [id]);
+
+    const compra = await client.query(
+      'UPDATE comprasCliente SET activo = false WHERE id = $1 AND activo = true RETURNING *', [id]
+    );
 
     if (compra.rows.length === 0) {
       await client.query('ROLLBACK');
       return res.status(404).json({ message: 'Compra no encontrada' });
     }
+
+    await client.query('UPDATE detalleCliente SET activo = false WHERE id_compra = $1', [id]);
 
     await client.query('COMMIT');
     res.json({ message: 'Compra eliminada correctamente', compra: compra.rows[0] });
