@@ -18,7 +18,8 @@ router.get('/', async (req, res) => {
 // Agregar un nuevo aliado
 router.post('/', async (req, res) => {
   try {
-    const { nombre, img } = req.body;
+    const { nombre, telefono, img } = req.body;
+
     let imgBuffer = null;
 
     if (img) {
@@ -27,8 +28,8 @@ router.post('/', async (req, res) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO aliados (nombre, img) VALUES ($1, $2) RETURNING *`,
-      [nombre, imgBuffer]
+      `INSERT INTO aliados (nombre, telefono, img) VALUES ($1, $2, $3) RETURNING *`,
+      [nombre, telefono ?? null, imgBuffer]
     );
 
     res.status(201).json(result.rows[0]);
@@ -44,7 +45,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, img } = req.body;
+    const { nombre, telefono, img } = req.body;
 
     let imgBuffer = null;
     if (img) {
@@ -54,11 +55,11 @@ router.put('/:id', async (req, res) => {
 
     const result = await pool.query(
       img
-        ? `UPDATE aliados SET nombre = $1, img = $2, updatedat = CURRENT_TIMESTAMP WHERE id = $3 RETURNING *`
-        : `UPDATE aliados SET nombre = $1, updatedat = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *`,
+        ? `UPDATE aliados SET nombre = $1, telefono = $2, img = $3, updatedat = CURRENT_TIMESTAMP WHERE id = $4 RETURNING *`
+        : `UPDATE aliados SET nombre = $1, telefono = $2, updatedat = CURRENT_TIMESTAMP WHERE id = $3 RETURNING *`,
       img
-        ? [nombre, imgBuffer, id]
-        : [nombre, id]
+        ? [nombre, telefono ?? null, imgBuffer, id]
+        : [nombre, telefono ?? null, id]
     );
 
     if (result.rows.length === 0) {
