@@ -97,9 +97,9 @@ router.put('/:id', async (req, res) => {
 
     const result = await pool.query(
       imagen
-        ? `UPDATE productos SET nombre = $1, descripcion = $2, categoria = $3, tipo = $4, precio = $5, imagen = $6, updateAt = CURRENT_TIMESTAMP
+        ? `UPDATE productos SET nombre = $1, descripcion = $2, categoria = $3, tipo = $4, precio = $5, imagen = $6, updatedAt = CURRENT_TIMESTAMP
            WHERE id = $7 RETURNING *`
-        : `UPDATE productos SET nombre = $1, descripcion = $2, categoria = $3, tipo = $4, precio = $5, updateAt = CURRENT_TIMESTAMP
+        : `UPDATE productos SET nombre = $1, descripcion = $2, categoria = $3, tipo = $4, precio = $5, updatedAt = CURRENT_TIMESTAMP
            WHERE id = $6 RETURNING *`,
       imagen
         ? [nombre, descripcion, categoria, tipo, precio, imagenBuffer, id]
