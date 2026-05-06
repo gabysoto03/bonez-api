@@ -110,7 +110,7 @@ router.put('/:id', async (req, res) => {
 
     const compra = await client.query(
       `UPDATE comprasProveedores
-       SET fecha = $1, total = $2, status = $3, id_aliado = $4, id_usuario = $5, updated_at = CURRENT_TIMESTAMP
+       SET fecha = $1, total = $2, status = $3, id_aliado = $4, id_usuario = $5, updatedAt = CURRENT_TIMESTAMP
        WHERE id = $6 RETURNING *`,
       [fecha, total, status, id_aliado, id_usuario, id]
     );
