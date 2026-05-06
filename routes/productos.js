@@ -7,7 +7,21 @@ const { handleError } = require('../middleware/errors');
 router.get('/', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM productos WHERE activo = true');
-    res.json(result.rows);
+
+    const productos = await Promise.all(
+      result.rows.map(async (producto) => {
+        const stock = await pool.query(
+          `SELECT s.id, s.cantidad, t.descripcion AS talla
+           FROM stock s
+           JOIN tallas t ON s.id_talla = t.id
+           WHERE s.id_producto = $1 AND s.activo = true AND t.activo = true`,
+          [producto.id]
+        );
+        return { ...producto, stock: stock.rows };
+      })
+    );
+
+    res.json(productos);
   } catch (error) {
     console.error(error);
     handleError(res, error, 'Error al obtener productos');
@@ -21,7 +35,16 @@ router.get('/:id', async (req, res) => {
     const { id } = req.params;
     const result = await pool.query('SELECT * FROM productos WHERE id = $1 AND activo = true', [id]);
     if (result.rows.length === 0) { return res.status(404).json({ message: 'Producto no encontrado' }); }
-    res.json(result.rows[0]);
+
+    const stock = await pool.query(
+      `SELECT s.id, s.cantidad, s.id_talla, t.descripcion AS talla
+       FROM stock s
+       JOIN tallas t ON s.id_talla = t.id
+       WHERE s.id_producto = $1 AND s.activo = true AND t.activo = true`,
+      [id]
+    );
+
+    res.json({ ...result.rows[0], stock: stock.rows });
   } catch (error) {
     console.error(error);
     handleError(res, error, 'Error al obtener el producto');

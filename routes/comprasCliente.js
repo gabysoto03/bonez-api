@@ -86,6 +86,27 @@ router.post('/', async (req, res) => {
          VALUES (gen_random_uuid(), $1, $2, $3, $4)`,
         [item.cantidad, item.talla, compra.rows[0].id, item.id_producto]
       );
+
+      const tallaResult = await client.query(
+        'SELECT id FROM tallas WHERE descripcion = $1 AND activo = true', [item.talla]
+      );
+
+      if (tallaResult.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ message: `La talla "${item.talla}" no existe` });
+      }
+
+      const stockResult = await client.query(
+        `UPDATE stock SET cantidad = cantidad::integer - 1
+         WHERE id_talla = $1 AND id_producto = $2 AND cantidad::integer > 0 AND activo = true
+         RETURNING *`,
+        [tallaResult.rows[0].id, item.id_producto]
+      );
+
+      if (stockResult.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ message: `Sin stock disponible para el producto con talla "${item.talla}"` });
+      }
     }
 
     await client.query('COMMIT');

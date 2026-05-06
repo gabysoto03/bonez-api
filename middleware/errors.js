@@ -21,7 +21,7 @@ function handleError(res, error, defaultMessage = 'Ocurrió un error en el servi
   if (parsed) {
     return res.status(parsed.status).json({ message: parsed.message });
   }
-  return res.status(500).json({ message: defaultMessage });
+  return res.status(500).json({ message: error.message || defaultMessage });
 }
 
 module.exports = { handleError };
