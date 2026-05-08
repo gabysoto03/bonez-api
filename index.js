@@ -40,6 +40,9 @@ app.use('/stock', stockRoutes);
 const authRoutes = require('./routes/auth');
 app.use('/auth', authRoutes);
 
+const catalogoRoutes = require('./routes/catalogo');
+app.use('/catalogo', catalogoRoutes);
+
 // puerto
 const PORT = 3000;
 
