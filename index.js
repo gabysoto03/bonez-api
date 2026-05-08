@@ -43,6 +43,9 @@ app.use('/auth', authRoutes);
 const catalogoRoutes = require('./routes/catalogo');
 app.use('/catalogo', catalogoRoutes);
 
+const mapsRoutes = require('./routes/maps');
+app.use('/maps', mapsRoutes);
+
 // puerto
 const PORT = 3000;
 
