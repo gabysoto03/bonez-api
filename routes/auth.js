@@ -17,11 +17,16 @@ router.post('/login', async (req, res) => {
 
     // Buscar primero en usuarios (admin)
     const usuarioResult = await pool.query(
-      'SELECT * FROM usuarios WHERE email = $1 AND activo = true', [email]
+      'SELECT * FROM usuarios WHERE email = $1', [email]
     );
 
     if (usuarioResult.rows.length > 0) {
       const usuario = usuarioResult.rows[0];
+
+      if (!usuario.activo) {
+        return res.status(403).json({ message: 'El usuario ha sido eliminado' });
+      }
+
       const passwordValido = await bcrypt.compare(password, usuario.password);
 
       if (!passwordValido) {
@@ -46,11 +51,16 @@ router.post('/login', async (req, res) => {
 
     // Buscar en clientes
     const clienteResult = await pool.query(
-      'SELECT * FROM clientes WHERE email = $1 AND activo = true', [email]
+      'SELECT * FROM clientes WHERE email = $1', [email]
     );
 
     if (clienteResult.rows.length > 0) {
       const cliente = clienteResult.rows[0];
+
+      if (!cliente.activo) {
+        return res.status(403).json({ message: 'El usuario ha sido eliminado' });
+      }
+
       const passwordValido = await bcrypt.compare(password, cliente.password);
 
       if (!passwordValido) {
